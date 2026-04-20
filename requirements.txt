@@ -1,0 +1,8 @@
+pandas
+psycopg2-binary
+supabase
+python-dotenv
+requests
+sqlalchemy
+tqdm
+streamlit

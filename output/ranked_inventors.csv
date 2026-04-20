@@ -1,0 +1,16 @@
+inventor_id,name,country,patent_count,rank,dense_rank,percent_rank,quartile
+11,Inventor 11,China,7,1,1,0.0,1
+2,Inventor 2,USA,7,1,1,0.0,1
+3,Inventor 3,Germany,7,1,1,0.0,1
+4,Inventor 4,Japan,7,1,1,0.0,1
+5,Inventor 5,South Korea,7,1,1,0.0,2
+6,Inventor 6,China,7,1,1,0.0,2
+7,Inventor 7,USA,7,1,1,0.0,2
+8,Inventor 8,Germany,7,1,1,0.0,2
+9,Inventor 9,Japan,7,1,1,0.0,3
+10,Inventor 10,South Korea,7,1,1,0.0,3
+15,Inventor 15,South Korea,6,11,2,0.714285714285714,3
+12,Inventor 12,USA,6,11,2,0.714285714285714,3
+13,Inventor 13,Germany,6,11,2,0.714285714285714,4
+14,Inventor 14,Japan,6,11,2,0.714285714285714,4
+1,Inventor 1,China,6,11,2,0.714285714285714,4
