@@ -1,16 +1,21 @@
 rank,name,country,total_patents,active_years,patents_per_year,performance_category
-1,Inventor 11,China,7,1,7.0,Above Average
-2,Inventor 2,USA,7,1,7.0,Above Average
-3,Inventor 3,Germany,7,1,7.0,Above Average
-4,Inventor 4,Japan,7,1,7.0,Above Average
-5,Inventor 5,South Korea,7,1,7.0,Above Average
-6,Inventor 6,China,7,1,7.0,Above Average
-7,Inventor 7,USA,7,1,7.0,Above Average
-8,Inventor 8,Germany,7,1,7.0,Above Average
-9,Inventor 9,Japan,7,1,7.0,Above Average
-10,Inventor 10,South Korea,7,1,7.0,Above Average
-11,Inventor 15,South Korea,6,1,6.0,Below Average
-12,Inventor 12,USA,6,1,6.0,Below Average
-13,Inventor 13,Germany,6,1,6.0,Below Average
-14,Inventor 14,Japan,6,1,6.0,Below Average
-15,Inventor 1,China,6,1,6.0,Below Average
+1,Hakseong Kim,,2,1,2.0,Above Average
+2,Kenneth James Miller,,2,1,2.0,Above Average
+3,Lei Wang,,2,1,2.0,Above Average
+4,Xiaogang Chen,,2,1,2.0,Above Average
+5,Aaron J. Bloomfield,,1,1,1.0,Below Average
+6,Abhishek R. Appu,,1,1,1.0,Below Average
+7,Abner D. Joseph,,1,1,1.0,Below Average
+8,Abhijit Rajkumar Khande,,1,1,1.0,Below Average
+9,Adam R. Abate,,1,1,1.0,Below Average
+10,Adrian Buckley,,1,1,1.0,Below Average
+11,Adi Dagan,,1,1,1.0,Below Average
+12,Adam D. Hensel,,1,1,1.0,Below Average
+13,Adam H. Hilton,,1,1,1.0,Below Average
+14,Adam M. Thomas,,1,1,1.0,Below Average
+15,Adam York,,1,1,1.0,Below Average
+16,Akio Fukase,,1,1,1.0,Below Average
+17,Akimichi Iwata,,1,1,1.0,Below Average
+18,Akio SUGAHARA,,1,1,1.0,Below Average
+19,Akihide Tanaka,,1,1,1.0,Below Average
+20,Akihiro Yamamoto,,1,1,1.0,Below Average

@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS companies CASCADE;
 
 -- Patents table
 CREATE TABLE patents (
-    patent_id INTEGER PRIMARY KEY,
+    patent_id VARCHAR(100) PRIMARY KEY,
     title TEXT,
     abstract TEXT,
     filing_date DATE,
@@ -16,28 +16,28 @@ CREATE TABLE patents (
 
 -- Inventors table
 CREATE TABLE inventors (
-    inventor_id INTEGER PRIMARY KEY,
+    inventor_id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(255),
     country VARCHAR(100)
 );
 
 -- Companies (assignees) table
 CREATE TABLE companies (
-    company_id INTEGER PRIMARY KEY,
+    company_id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(255)
 );
 
 -- Relationship table: Patent to Inventors (many-to-many)
 CREATE TABLE patent_inventors (
-    patent_id INTEGER REFERENCES patents(patent_id) ON DELETE CASCADE,
-    inventor_id INTEGER REFERENCES inventors(inventor_id) ON DELETE CASCADE,
+    patent_id VARCHAR(100) REFERENCES patents(patent_id) ON DELETE CASCADE,
+    inventor_id VARCHAR(100) REFERENCES inventors(inventor_id) ON DELETE CASCADE,
     PRIMARY KEY (patent_id, inventor_id)
 );
 
 -- Relationship table: Patent to Companies (many-to-many)
 CREATE TABLE patent_companies (
-    patent_id INTEGER REFERENCES patents(patent_id) ON DELETE CASCADE,
-    company_id INTEGER REFERENCES companies(company_id) ON DELETE CASCADE,
+    patent_id VARCHAR(100) REFERENCES patents(patent_id) ON DELETE CASCADE,
+    company_id VARCHAR(100) REFERENCES companies(company_id) ON DELETE CASCADE,
     PRIMARY KEY (patent_id, company_id)
 );
 

@@ -4,6 +4,7 @@ import logging
 from data_pipeline import PatentDataPipeline
 from sql_queries import PatentQueries
 from reports import ReportGenerator
+import config
 
 # Setup logging
 logging.basicConfig(

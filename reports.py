@@ -3,6 +3,7 @@ Report generation module.
 Creates console, CSV, and JSON reports from query results.
 """
 
+import os
 import json
 from datetime import datetime
 import pandas as pd
@@ -19,6 +20,9 @@ class ReportGenerator:
     def __init__(self, query_results: Dict[str, pd.DataFrame]):
         """Initialize with query results."""
         self.results = query_results
+        # Ensure output directory exists
+        if hasattr(config, 'OUTPUT_DIR'):
+            os.makedirs(config.OUTPUT_DIR, exist_ok=True)
     
     def generate_console_report(self):
         """Print formatted report to console."""
@@ -57,7 +61,7 @@ class ReportGenerator:
         if not self.results['yearly_trends'].empty:
             for _, row in self.results['yearly_trends'].head(10).iterrows():
                 growth = row['yoy_growth'] if pd.notna(row['yoy_growth']) else 0
-                growth_symbol = "▲" if growth > 0 else "▼" if growth < 0 else "●"
+                growth_symbol = "+" if growth > 0 else "-" if growth < 0 else "="
                 print(f"{int(row['year'])}: {row['patent_count']:6,} patents  {growth_symbol} {abs(growth):5.1f}%")
         
         # Performance Summary from CTE

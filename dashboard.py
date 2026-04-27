@@ -71,7 +71,13 @@ col1, col2, col3, col4 = st.columns(4)
 total_patents = len(df_patents) if not df_patents.empty else df_yearly_trends['patent_count'].sum() if 'patent_count' in df_yearly_trends.columns else 100
 total_companies = len(df_top_companies)
 total_inventors = len(df_top_inventors)
-top_growth = f"{df_yearly_trends['yoy_growth'].iloc[0]}%" if 'yoy_growth' in df_yearly_trends.columns and not df_yearly_trends.empty else "N/A"
+
+# Handle NaN in growth (happens if we only have 1 year of data in the sample)
+if not df_yearly_trends.empty and 'yoy_growth' in df_yearly_trends.columns:
+    val = df_yearly_trends['yoy_growth'].iloc[0]
+    top_growth = f"{val:.1f}%" if pd.notna(val) else "N/A"
+else:
+    top_growth = "N/A"
 
 with col1:
     st.metric("Total Patents Analyzed", f"{total_patents:,}")

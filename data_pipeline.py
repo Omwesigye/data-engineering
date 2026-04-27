@@ -1,281 +1,183 @@
-
-
 import pandas as pd
-import requests
-import io
 import zipfile
+import os
 from sqlalchemy import create_engine, text
-from tqdm import tqdm
 import config
-from typing import Dict, List, Tuple
 import logging
+import sys
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class PatentDataPipeline:
-    """Handles the complete ETL process for patent data."""
+    """Handles ETL process specifically for local PatentsView ZIP files."""
     
     def __init__(self):
-        """Initialize pipeline with database connection."""
         self.engine = None
         self.setup_database_connection()
         
     def setup_database_connection(self):
-        """Create connection to Supabase PostgreSQL database."""
         try:
             db_url = config.SUPABASE_URL
-            
             self.engine = create_engine(db_url)
             logger.info("Database connection established")
         except Exception as e:
             logger.error(f"Database connection failed: {e}")
             raise
-    
-    def extract_data(self) -> pd.DataFrame:
-        """
-        Extract patent data directly from URL without downloading locally.
-        Reads in chunks to manage memory.
-        """
-        logger.info(f"Extracting data from {config.DATA_URL}")
+
+    def extract_and_load_file(self, table_key: str, file_path: str):
+        """Opens local ZIP file and loads TSV in chunks to avoid memory issues."""
+        if not os.path.exists(file_path):
+            logger.error(f"File not found: {file_path}")
+            return
+
+        logger.info(f"Processing {table_key} from local path: {file_path}")
         
         try:
-            # Download zip file from URL
-            response = requests.get(config.DATA_URL, stream=True)
-            response.raise_for_status()
+            # Open local zip file
+            with zipfile.ZipFile(file_path) as zip_ref:
+                # Get the name of the TSV inside (usually matches zip name minus .zip)
+                tsv_file_name = zip_ref.namelist()[0]
+                logger.info(f"Reading TSV: {tsv_file_name}")
+                
+                with zip_ref.open(tsv_file_name) as f:
+                    # Process in chunks to keep RAM usage low on your EliteBook
+                    for i, chunk in enumerate(pd.read_csv(f, sep='\t', chunksize=config.CHUNK_SIZE, low_memory=False)):
+                        if config.DEV_MODE_LIMIT and i >= config.DEV_MODE_LIMIT:
+                            logger.info(f"Dev mode limit reached. Stopping after {i * config.CHUNK_SIZE} rows for {table_key}.")
+                            break
+
+                        clean_chunk = self.transform_logic(table_key, chunk)
+                        self.load_chunk_to_db(table_key, clean_chunk, is_first=(i == 0))
+                        
+                        if i % 5 == 0:
+                            logger.info(f"Progress for {table_key}: Processed {i * config.CHUNK_SIZE} rows...")
+                        
+            logger.info(f"Completed loading for {table_key}")
             
-            # Read zip file content
-            with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
-                # Assuming the zip contains CSV files
-                csv_files = [f for f in zip_file.namelist() if f.endswith('.csv')]
-                
-                if not csv_files:
-                    raise ValueError("No CSV files found in zip archive")
-                
-                # Read the first CSV file
-                with zip_file.open(csv_files[0]) as csv_file:
-                    # Read in chunks to manage memory
-                    chunks = []
-                    for chunk in pd.read_csv(csv_file, chunksize=config.CHUNK_SIZE, low_memory=False):
-                        chunks.append(chunk)
-                    
-                    df = pd.concat(chunks, ignore_index=True)
-                    
-            logger.info(f"Extracted {len(df)} records")
+        except Exception as e:
+            logger.error(f"Failed to process {table_key}: {e}")
+            raise
+
+    def transform_logic(self, table_key: str, df: pd.DataFrame) -> pd.DataFrame:
+        """Remaps PatentsView headers to match your database schema."""
+        if table_key == "patents":
+            # Map g_patent.tsv
+            df = df.rename(columns={'patent_title': 'title', 'patent_date': 'filing_date'})
+            df['abstract'] = ''
+            
+            # Convert to proper date objects
+            df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce')
+            df['year'] = df['filing_date'].dt.year
+            df['year'] = df['year'].fillna(0).astype(int)
+            
+            # Ensure only required columns are kept
+            cols = ['patent_id', 'title', 'abstract', 'filing_date', 'year']
+            return df[[c for c in cols if c in df.columns]].fillna({'abstract': '', 'title': ''})
+        
+        if table_key == "inventors":
+            # Map g_inventor_disambiguated.tsv
+            df['name'] = df['disambig_inventor_name_first'].astype(str) + ' ' + df['disambig_inventor_name_last'].astype(str)
+            df['country'] = ''
+            cols = ['inventor_id', 'name', 'country']
+            df = df[[c for c in cols if c in df.columns]].drop_duplicates(subset=['inventor_id']).fillna('')
             return df
             
-        except Exception as e:
-            logger.error(f"Data extraction failed: {e}. Generating synthetic backup data.")
-            # Generate 100 rows of synthetic raw data
-            return pd.DataFrame({
-                'patent_id': [str(1000000 + i) for i in range(1, 101)],
-                'patent_title': [f'Synthetic Patent Technology {i}' for i in range(1, 101)],
-                'patent_abstract': [f'This is an advanced synthetic abstract for patent {i}' for i in range(1, 101)],
-                'filing_date': pd.date_range(start='2023-01-01', periods=100, freq='D').strftime('%Y-%m-%d'),
-                'inventor_name': [f'Inventor {i%15 + 1}' for i in range(1, 101)],
-                'inventor_id': [i%15 + 1 for i in range(1, 101)],
-                'inventor_country': ['USA', 'Germany', 'Japan', 'South Korea', 'China'] * 20,
-                'assignee_name': [f'Tech Company {i%8 + 1}' for i in range(1, 101)],
-                'assignee_id': [i%8 + 1 for i in range(1, 101)]
-            })
-    
-    def clean_data(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """
-        Clean and transform the patent data.
-        Creates separate dataframes for patents, inventors, companies, and relationships.
-        """
-        logger.info("Cleaning and transforming data")
-        
-        # Clean patents data
-        patents_df = self._clean_patents(df)
-        
-        # Extract inventors
-        inventors_df, patent_inventors_df = self._extract_inventors(df)
-        
-        # Extract companies (assignees)
-        companies_df, patent_companies_df = self._extract_companies(df)
-        
-        # Save clean data to CSV
-        patents_df.to_csv(f"{config.OUTPUT_DIR}/clean_patents.csv", index=False)
-        inventors_df.to_csv(f"{config.OUTPUT_DIR}/clean_inventors.csv", index=False)
-        companies_df.to_csv(f"{config.OUTPUT_DIR}/clean_companies.csv", index=False)
-        
-        logger.info(f"Patents: {len(patents_df)}, Inventors: {len(inventors_df)}, Companies: {len(companies_df)}")
-        
-        return patents_df, inventors_df, companies_df, patent_inventors_df, patent_companies_df
-    
-    def _clean_patents(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Clean and prepare patents table."""
-        # Select relevant columns (adjust based on actual CSV structure)
-        patent_columns = {
-            'patent_id': 'patent_id',
-            'patent_title': 'title',
-            'patent_abstract': 'abstract',
-            'filing_date': 'filing_date',
-            'patent_year': 'year'
-        }
-        
-        # Map columns if they exist
-        patents_df = pd.DataFrame()
-        for old_col, new_col in patent_columns.items():
-            if old_col in df.columns:
-                patents_df[new_col] = df[old_col]
-        
-        # Add patent_id if not exists
-        if 'patent_id' not in patents_df.columns:
-            patents_df['patent_id'] = range(1, len(df) + 1)
-        
-        # Clean dates
-        if 'filing_date' in patents_df.columns:
-            patents_df['filing_date'] = pd.to_datetime(patents_df['filing_date'], errors='coerce')
-            patents_df['year'] = patents_df['filing_date'].dt.year
-        
-        # Handle missing values
-        patents_df = patents_df.fillna({
-            'title': 'Unknown',
-            'abstract': 'No abstract available',
-            'year': 0
-        })
-        
-        # Remove duplicates
-        patents_df = patents_df.drop_duplicates(subset=['patent_id'])
-        
-        return patents_df
-    
-    def _extract_inventors(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Extract inventors and create relationship table."""
-        inventors_df = pd.DataFrame()
-        patent_inventors_df = pd.DataFrame()
-        
-        # Check if inventor columns exist
-        if 'inventor_name' in df.columns and 'inventor_id' in df.columns:
-            inventors_df = df[['inventor_id', 'inventor_name']].drop_duplicates()
-            inventors_df = inventors_df.rename(columns={'inventor_id': 'inventor_id', 'inventor_name': 'name'})
+        if table_key == "companies":
+            # Map g_assignee_not_disambiguated.tsv
+            df = df.rename(columns={'assignee_id': 'company_id', 'raw_assignee_organization': 'name'})
+            cols = ['company_id', 'name']
+            df = df[[c for c in cols if c in df.columns]].drop_duplicates(subset=['company_id']).fillna('')
+            return df
             
-            # Add country if available
-            if 'inventor_country' in df.columns:
-                inventors_df['country'] = df[['inventor_id', 'inventor_country']].drop_duplicates()['inventor_country']
-            else:
-                inventors_df['country'] = 'Unknown'
+        if table_key == "patent_inventors":
+            cols = ['patent_id', 'inventor_id']
+            return df[[c for c in cols if c in df.columns]].drop_duplicates()
             
-            # Create relationship table
-            patent_inventors_df = df[['patent_id', 'inventor_id']].drop_duplicates()
-        else:
-            # Generate synthetic data for demonstration
-            logger.warning("Inventor columns not found, generating synthetic data")
-            unique_patents = df['patent_id'].unique() if 'patent_id' in df.columns else range(100)
+        if table_key == "patent_companies":
+            df = df.rename(columns={'assignee_id': 'company_id'})
+            cols = ['patent_id', 'company_id']
+            return df[[c for c in cols if c in df.columns]].drop_duplicates()
             
-            inventors = []
-            patent_inventors = []
-            
-            for i, patent_id in enumerate(unique_patents[:1000]):  # Limit for demo
-                num_inventors = (i % 3) + 1
-                for j in range(num_inventors):
-                    inventor_id = i * 3 + j + 1
-                    inventors.append({
-                        'inventor_id': inventor_id,
-                        'name': f'Inventor_{inventor_id}',
-                        'country': ['USA', 'China', 'Germany', 'Japan'][inventor_id % 4]
-                    })
-                    patent_inventors.append({
-                        'patent_id': patent_id,
-                        'inventor_id': inventor_id
-                    })
-            
-            inventors_df = pd.DataFrame(inventors)
-            patent_inventors_df = pd.DataFrame(patent_inventors)
-        
-        return inventors_df, patent_inventors_df
-    
-    def _extract_companies(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Extract companies/assignees and create relationship table."""
-        companies_df = pd.DataFrame()
-        patent_companies_df = pd.DataFrame()
-        
-        # Check if company columns exist
-        if 'assignee_name' in df.columns and 'assignee_id' in df.columns:
-            companies_df = df[['assignee_id', 'assignee_name']].drop_duplicates()
-            companies_df = companies_df.rename(columns={'assignee_id': 'company_id', 'assignee_name': 'name'})
-            
-            # Create relationship table
-            patent_companies_df = df[['patent_id', 'assignee_id']].drop_duplicates()
-            patent_companies_df = patent_companies_df.rename(columns={'assignee_id': 'company_id'})
-        else:
-            # Generate synthetic data for demonstration
-            logger.warning("Company columns not found, generating synthetic data")
-            unique_patents = df['patent_id'].unique() if 'patent_id' in df.columns else range(100)
-            
-            companies = []
-            patent_companies = []
-            company_names = ['IBM', 'Microsoft', 'Google', 'Apple', 'Samsung', 'Intel', 'Qualcomm', 'Sony']
-            
-            for i, patent_id in enumerate(unique_patents[:1000]):
-                company_id = (i % len(company_names)) + 1
-                companies.append({
-                    'company_id': company_id,
-                    'name': company_names[company_id - 1]
-                })
-                patent_companies.append({
-                    'patent_id': patent_id,
-                    'company_id': company_id
-                })
-            
-            companies_df = pd.DataFrame(companies).drop_duplicates()
-            patent_companies_df = pd.DataFrame(patent_companies)
-        
-        return companies_df, patent_companies_df
-    
-    def load_to_database(self, tables: Dict[str, pd.DataFrame]):
-        """
-        Load cleaned dataframes to Supabase tables.
-        """
-        logger.info("Loading data to Supabase database")
+        return df
+
+    def load_chunk_to_db(self, table_key: str, df: pd.DataFrame, is_first: bool):
+        """Helper to load chunks into Supabase with Conflict Handling."""
+        table_name = getattr(config, f"TABLE_{table_key.upper()}")
         
         with self.engine.connect() as conn:
-            # Load each table
-            for table_name, df in tables.items():
-                if df.empty:
-                    logger.warning(f"Skipping empty table: {table_name}")
-                    continue
-                
-                # Clear existing data (optional)
+            # 1. Clear table if it's the first chunk
+            if is_first:
+                logger.info(f"Truncating table {table_name}...")
                 conn.execute(text(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE"))
                 conn.commit()
+
+            # 2. Create a temporary table with the same schema
+            temp_table = f"temp_{table_name}"
+            df.to_sql(temp_table, conn, if_exists='replace', index=False)
+
+            # 3. Perform UPSERT (Insert on conflict do nothing)
+            # We get column names from the dataframe
+            cols = ", ".join(df.columns)
+            
+            # For primary keys, we need to handle conflicts.
+            if table_key in ["patents", "inventors", "companies"]:
+                pk = f"{table_key[:-1]}_id" if table_key != "patents" else "patent_id"
+                if table_key == "companies": pk = "company_id"
                 
-                # Insert data in batches
-                batch_size = 1000
-                for i in range(0, len(df), batch_size):
-                    batch = df.iloc[i:i+batch_size]
-                    batch.to_sql(table_name, conn, if_exists='append', index=False)
-                    logger.info(f"Loaded {min(i+batch_size, len(df))}/{len(df)} rows to {table_name}")
-        
-        logger.info("Data loading completed")
-    
+                insert_sql = f"""
+                    INSERT INTO {table_name} ({cols})
+                    SELECT {cols} FROM {temp_table}
+                    ON CONFLICT ({pk}) DO NOTHING
+                """
+            elif table_key == "patent_inventors":
+                # Only insert if both patent and inventor exist in our sampled data
+                insert_sql = f"""
+                    INSERT INTO {table_name} (patent_id, inventor_id)
+                    SELECT t.patent_id, t.inventor_id 
+                    FROM {temp_table} t
+                    INNER JOIN patents p ON t.patent_id = p.patent_id
+                    INNER JOIN inventors i ON t.inventor_id = i.inventor_id
+                    ON CONFLICT DO NOTHING
+                """
+            elif table_key == "patent_companies":
+                # Only insert if both patent and company exist in our sampled data
+                insert_sql = f"""
+                    INSERT INTO {table_name} (patent_id, company_id)
+                    SELECT t.patent_id, t.company_id 
+                    FROM {temp_table} t
+                    INNER JOIN patents p ON t.patent_id = p.patent_id
+                    INNER JOIN companies c ON t.company_id = c.company_id
+                    ON CONFLICT DO NOTHING
+                """
+            else:
+                insert_sql = f"""
+                    INSERT INTO {table_name} ({cols})
+                    SELECT {cols} FROM {temp_table}
+                    ON CONFLICT DO NOTHING
+                """
+
+            conn.execute(text(insert_sql))
+            conn.execute(text(f"DROP TABLE {temp_table}"))
+            conn.commit()
+
     def run_pipeline(self):
-        """Execute the complete ETL pipeline."""
+        """Iterates through files in the order required for Foreign Keys."""
+        # Priority order: Patents -> Entities -> Links
+        load_order = ["patents", "inventors", "companies", "patent_inventors", "patent_companies"]
+        
         try:
-            # Extract
-            raw_data = self.extract_data()
+            for table_key in load_order:
+                if table_key in config.FILES:
+                    file_path = config.FILES[table_key]
+                    self.extract_and_load_file(table_key, file_path)
             
-            # Transform
-            patents, inventors, companies, patent_inventors, patent_companies = self.clean_data(raw_data)
-            
-            # Load
-            tables = {
-                config.TABLE_PATENTS: patents,
-                config.TABLE_INVENTORS: inventors,
-                config.TABLE_COMPANIES: companies,
-                config.TABLE_PATENT_INVENTORS: patent_inventors,
-                config.TABLE_PATENT_COMPANIES: patent_companies
-            }
-            self.load_to_database(tables)
-            
-            logger.info("Pipeline completed successfully")
+            logger.info("All local patent data successfully integrated.")
             
         except Exception as e:
-            logger.error(f"Pipeline failed: {e}")
-            raise
+            logger.error(f"PIPELINE TERMINATED: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     pipeline = PatentDataPipeline()

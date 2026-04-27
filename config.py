@@ -1,30 +1,33 @@
-
-
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables (SUPABASE_URL, etc.)
 load_dotenv()
 
 # Supabase configuration
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
-# Data source URL (PatentsView data)
-DATA_URL = "https://bulkdata.uspto.gov/data/patent/grant/redbook/bibliographic/2024/pgbr_2024.zip"
-
-# Chunk size for processing (rows per chunk)
-CHUNK_SIZE = 50000
-
-# Output directory
+# --- LOCAL FILE PATHS ---
+# We point to the 'raw' folder in your project root
+RAW_DATA_DIR = "raw"
 OUTPUT_DIR = "output"
 
-# Table names
+FILES = {
+    "patents": os.path.join(RAW_DATA_DIR, "g_patent.tsv.zip"),
+    "inventors": os.path.join(RAW_DATA_DIR, "g_inventor_disambiguated.tsv.zip"),
+    "companies": os.path.join(RAW_DATA_DIR, "g_assignee_not_disambiguated.tsv.zip"),
+    "patent_inventors": os.path.join(RAW_DATA_DIR, "g_inventor_disambiguated.tsv.zip"),
+    "patent_companies": os.path.join(RAW_DATA_DIR, "g_assignee_not_disambiguated.tsv.zip")
+}
+
+# --- PIPELINE SETTINGS ---
+CHUNK_SIZE = 50000
+DEV_MODE_LIMIT = 2  # Set to None for full load, or a number for max chunks (2 = 100,000 rows)
+
+# Table names matching your Supabase schema
 TABLE_PATENTS = "patents"
 TABLE_INVENTORS = "inventors"
 TABLE_COMPANIES = "companies"
 TABLE_PATENT_INVENTORS = "patent_inventors"
 TABLE_PATENT_COMPANIES = "patent_companies"
-
-# Ensure output directory exists
-os.makedirs(OUTPUT_DIR, exist_ok=True)
