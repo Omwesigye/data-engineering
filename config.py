@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 # Load environment variables (SUPABASE_URL, etc.)
 load_dotenv()
 
-# Supabase configuration
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+# MySQL configuration
+MYSQL_URL = os.getenv('MYSQL_URL')
 
 # --- LOCAL FILE PATHS ---
 # We point to the 'raw' folder in your project root

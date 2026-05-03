@@ -19,7 +19,7 @@ class PatentDataPipeline:
         
     def setup_database_connection(self):
         try:
-            db_url = config.SUPABASE_URL
+            db_url = config.MYSQL_URL
             self.engine = create_engine(db_url)
             logger.info("Database connection established")
         except Exception as e:
@@ -51,8 +51,8 @@ class PatentDataPipeline:
                         clean_chunk = self.transform_logic(table_key, chunk)
                         self.load_chunk_to_db(table_key, clean_chunk, is_first=(i == 0))
                         
-                        if i % 5 == 0:
-                            logger.info(f"Progress for {table_key}: Processed {i * config.CHUNK_SIZE} rows...")
+                        if i % 1 == 0: # Log every chunk for visibility
+                            logger.info(f"Progress for {table_key}: Processed {(i+1) * config.CHUNK_SIZE} rows...")
                         
             logger.info(f"Completed loading for {table_key}")
             
@@ -103,14 +103,16 @@ class PatentDataPipeline:
         return df
 
     def load_chunk_to_db(self, table_key: str, df: pd.DataFrame, is_first: bool):
-        """Helper to load chunks into Supabase with Conflict Handling."""
+        """Helper to load chunks into MySQL with Conflict Handling."""
         table_name = getattr(config, f"TABLE_{table_key.upper()}")
         
         with self.engine.connect() as conn:
             # 1. Clear table if it's the first chunk
             if is_first:
                 logger.info(f"Truncating table {table_name}...")
-                conn.execute(text(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE"))
+                conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
+                conn.execute(text(f"TRUNCATE TABLE {table_name};"))
+                conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
                 conn.commit()
 
             # 2. Create a temporary table with the same schema
@@ -118,48 +120,37 @@ class PatentDataPipeline:
             df.to_sql(temp_table, conn, if_exists='replace', index=False)
 
             # 3. Perform UPSERT (Insert on conflict do nothing)
-            # We get column names from the dataframe
             cols = ", ".join(df.columns)
             
-            # For primary keys, we need to handle conflicts.
             if table_key in ["patents", "inventors", "companies"]:
-                pk = f"{table_key[:-1]}_id" if table_key != "patents" else "patent_id"
-                if table_key == "companies": pk = "company_id"
-                
                 insert_sql = f"""
-                    INSERT INTO {table_name} ({cols})
+                    INSERT IGNORE INTO {table_name} ({cols})
                     SELECT {cols} FROM {temp_table}
-                    ON CONFLICT ({pk}) DO NOTHING
                 """
             elif table_key == "patent_inventors":
-                # Only insert if both patent and inventor exist in our sampled data
                 insert_sql = f"""
-                    INSERT INTO {table_name} (patent_id, inventor_id)
+                    INSERT IGNORE INTO {table_name} (patent_id, inventor_id)
                     SELECT t.patent_id, t.inventor_id 
                     FROM {temp_table} t
                     INNER JOIN patents p ON t.patent_id = p.patent_id
                     INNER JOIN inventors i ON t.inventor_id = i.inventor_id
-                    ON CONFLICT DO NOTHING
                 """
             elif table_key == "patent_companies":
-                # Only insert if both patent and company exist in our sampled data
                 insert_sql = f"""
-                    INSERT INTO {table_name} (patent_id, company_id)
+                    INSERT IGNORE INTO {table_name} (patent_id, company_id)
                     SELECT t.patent_id, t.company_id 
                     FROM {temp_table} t
                     INNER JOIN patents p ON t.patent_id = p.patent_id
                     INNER JOIN companies c ON t.company_id = c.company_id
-                    ON CONFLICT DO NOTHING
                 """
             else:
                 insert_sql = f"""
-                    INSERT INTO {table_name} ({cols})
+                    INSERT IGNORE INTO {table_name} ({cols})
                     SELECT {cols} FROM {temp_table}
-                    ON CONFLICT DO NOTHING
                 """
 
             conn.execute(text(insert_sql))
-            conn.execute(text(f"DROP TABLE {temp_table}"))
+            conn.execute(text(f"DROP TABLE IF EXISTS {temp_table}"))
             conn.commit()
 
     def run_pipeline(self):

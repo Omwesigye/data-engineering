@@ -1,6 +1,6 @@
 pandas
-psycopg2-binary
-supabase
+pymysql
+cryptography
 python-dotenv
 requests
 sqlalchemy

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-04-21T21:10:23.950708",
+    "generated_at": "2026-05-03T16:47:54.808450",
     "total_patents": 100000
   },
   "top_inventors": [
@@ -10,7 +10,7 @@
       "country": ""
     },
     {
-      "name": "Hakseong Kim",
+      "name": "Xiaogang Chen",
       "patents": 2,
       "country": ""
     },
@@ -20,37 +20,37 @@
       "country": ""
     },
     {
-      "name": "Xiaogang Chen",
+      "name": "Hakseong Kim",
       "patents": 2,
       "country": ""
     },
     {
-      "name": "Abhishek R. Appu",
+      "name": "Arthur Tomlin",
       "patents": 1,
       "country": ""
     },
     {
-      "name": "Abner D. Joseph",
+      "name": "Shit-Chin Wu",
       "patents": 1,
       "country": ""
     },
     {
-      "name": "Robin Nastri",
+      "name": "Inkwon Seo",
       "patents": 1,
       "country": ""
     },
     {
-      "name": "Adrian Buckley",
+      "name": "Richard A. Carlow",
       "patents": 1,
       "country": ""
     },
     {
-      "name": "Aaron J. Bloomfield",
+      "name": "Marco Bisoffi",
       "patents": 1,
       "country": ""
     },
     {
-      "name": "Adam R. Abate",
+      "name": "Jeffrey Anthony Hamel",
       "patents": 1,
       "country": ""
     }
@@ -65,7 +65,7 @@
       "patents": 25
     },
     {
-      "name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO., LTD.",
+      "name": "Toyota Jidosha Kabushiki Kaisha",
       "patents": 9
     },
     {
@@ -73,7 +73,7 @@
       "patents": 9
     },
     {
-      "name": "Toyota Jidosha Kabushiki Kaisha",
+      "name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO., LTD.",
       "patents": 9
     },
     {
@@ -85,15 +85,15 @@
       "patents": 7
     },
     {
-      "name": "Google LLC",
+      "name": "Hyundai Motor Company",
       "patents": 7
     },
     {
-      "name": "AT&T INTELLECTUAL PROPERTY I, L.P.",
+      "name": "Amazon Technologies, Inc.",
       "patents": 7
     },
     {
-      "name": "Mitsubishi Electric Corporation",
+      "name": "Canon Kabushiki Kaisha",
       "patents": 7
     }
   ],
@@ -114,7 +114,7 @@
   "insights": {
     "average_patents_per_inventor": 1.2,
     "most_prolific_inventor": {
-      "name": "Hakseong Kim",
+      "name": "Kenneth James Miller",
       "patents": 2,
       "patents_per_year": 2.0
     }

@@ -1,9 +1,12 @@
+SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS patent_companies CASCADE;
-DROP TABLE IF EXISTS patent_inventors CASCADE;
-DROP TABLE IF EXISTS patents CASCADE;
-DROP TABLE IF EXISTS inventors CASCADE;
-DROP TABLE IF EXISTS companies CASCADE;
+DROP TABLE IF EXISTS patent_companies;
+DROP TABLE IF EXISTS patent_inventors;
+DROP TABLE IF EXISTS patents;
+DROP TABLE IF EXISTS inventors;
+DROP TABLE IF EXISTS companies;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Patents table
 CREATE TABLE patents (
@@ -29,16 +32,20 @@ CREATE TABLE companies (
 
 -- Relationship table: Patent to Inventors (many-to-many)
 CREATE TABLE patent_inventors (
-    patent_id VARCHAR(100) REFERENCES patents(patent_id) ON DELETE CASCADE,
-    inventor_id VARCHAR(100) REFERENCES inventors(inventor_id) ON DELETE CASCADE,
-    PRIMARY KEY (patent_id, inventor_id)
+    patent_id VARCHAR(100),
+    inventor_id VARCHAR(100),
+    PRIMARY KEY (patent_id, inventor_id),
+    FOREIGN KEY (patent_id) REFERENCES patents(patent_id) ON DELETE CASCADE,
+    FOREIGN KEY (inventor_id) REFERENCES inventors(inventor_id) ON DELETE CASCADE
 );
 
 -- Relationship table: Patent to Companies (many-to-many)
 CREATE TABLE patent_companies (
-    patent_id VARCHAR(100) REFERENCES patents(patent_id) ON DELETE CASCADE,
-    company_id VARCHAR(100) REFERENCES companies(company_id) ON DELETE CASCADE,
-    PRIMARY KEY (patent_id, company_id)
+    patent_id VARCHAR(100),
+    company_id VARCHAR(100),
+    PRIMARY KEY (patent_id, company_id),
+    FOREIGN KEY (patent_id) REFERENCES patents(patent_id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE
 );
 
 -- Create indexes for better query performance
@@ -65,9 +72,4 @@ LEFT JOIN patent_companies pc ON p.patent_id = pc.patent_id
 LEFT JOIN companies c ON pc.company_id = c.company_id
 GROUP BY p.patent_id, p.title, p.year;
 
--- Comments for documentation
-COMMENT ON TABLE patents IS 'Main patent information including titles, abstracts, and dates';
-COMMENT ON TABLE inventors IS 'Inventor information including names and countries';
-COMMENT ON TABLE companies IS 'Company/assignee information';
-COMMENT ON TABLE patent_inventors IS 'Many-to-many relationship between patents and inventors';
-COMMENT ON TABLE patent_companies IS 'Many-to-many relationship between patents and companies';
+-- Comments omitted as MySQL uses table-level options instead.

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class PatentQueries:
     def __init__(self):
         """Initialize database connection."""
-        db_url = config.SUPABASE_URL
+        db_url = config.MYSQL_URL
         self.engine = create_engine(db_url)
     
     def q1_top_inventors(self, limit: int = 10) -> pd.DataFrame:
@@ -80,8 +80,8 @@ class PatentQueries:
             p.patent_id,
             p.title,
             p.year,
-            STRING_AGG(DISTINCT i.name, ', ') as inventors,
-            STRING_AGG(DISTINCT c.name, ', ') as assignees
+            GROUP_CONCAT(DISTINCT i.name SEPARATOR ', ') as inventors,
+            GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as assignees
         FROM patents p
         LEFT JOIN patent_inventors pi ON p.patent_id = pi.patent_id
         LEFT JOIN inventors i ON pi.inventor_id = i.inventor_id
@@ -114,24 +114,24 @@ class PatentQueries:
         ranked_inventors AS (
             SELECT 
                 *,
-                ROW_NUMBER() OVER (ORDER BY total_patents DESC) as rank,
+                ROW_NUMBER() OVER (ORDER BY total_patents DESC) as rank_val,
                 AVG(total_patents) OVER() as avg_patents
             FROM inventor_stats
         )
         SELECT 
-            rank,
+            rank_val as rank,
             name,
             country,
             total_patents,
             active_years,
-            ROUND(total_patents::DECIMAL / active_years, 2) as patents_per_year,
+            ROUND(CAST(total_patents AS DECIMAL) / active_years, 2) as patents_per_year,
             CASE 
                 WHEN total_patents > avg_patents THEN 'Above Average'
                 ELSE 'Below Average'
             END as performance_category
         FROM ranked_inventors
-        WHERE rank <= 20
-        ORDER BY rank
+        WHERE rank_val <= 20
+        ORDER BY rank_val
         """
         return pd.read_sql(text(query), self.engine)
     
@@ -143,10 +143,10 @@ class PatentQueries:
             i.name,
             i.country,
             COUNT(DISTINCT pi.patent_id) as patent_count,
-            RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as rank,
-            DENSE_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as dense_rank,
-            PERCENT_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as percent_rank,
-            NTILE(4) OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as quartile
+            RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `rank`,
+            DENSE_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `dense_rank`,
+            PERCENT_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `percent_rank`,
+            NTILE(4) OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `quartile`
         FROM inventors i
         JOIN patent_inventors pi ON i.inventor_id = pi.inventor_id
         GROUP BY i.inventor_id, i.name, i.country

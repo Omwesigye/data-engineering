@@ -1,51 +1,51 @@
 inventor_id,name,country,patent_count,rank,dense_rank,percent_rank,quartile
-fl:ha_ln:kim-667,Hakseong Kim,,2,1,1,0.0,1
-fl:ke_ln:miller-8,Kenneth James Miller,,2,1,1,0.0,1
 fl:le_ln:wang-45,Lei Wang,,2,1,1,0.0,1
+fl:ha_ln:kim-667,Hakseong Kim,,2,1,1,0.0,1
 fl:xi_ln:chen-231,Xiaogang Chen,,2,1,1,0.0,1
-fl:aa_ln:bloomfield-2,Aaron J. Bloomfield,,1,5,2,0.00334728033472803,1
-fl:ab_ln:appu-1,Abhishek R. Appu,,1,5,2,0.00334728033472803,1
-fl:ab_ln:joseph-2,Abner D. Joseph,,1,5,2,0.00334728033472803,1
-fl:ab_ln:khande-1,Abhijit Rajkumar Khande,,1,5,2,0.00334728033472803,1
-fl:ad_ln:abate-1,Adam R. Abate,,1,5,2,0.00334728033472803,1
-fl:ad_ln:buckley-1,Adrian Buckley,,1,5,2,0.00334728033472803,1
-fl:ad_ln:dagan-2,Adi Dagan,,1,5,2,0.00334728033472803,1
-fl:ad_ln:hensel-1,Adam D. Hensel,,1,5,2,0.00334728033472803,1
-fl:ad_ln:hilton-2,Adam H. Hilton,,1,5,2,0.00334728033472803,1
-fl:ad_ln:thomas-12,Adam M. Thomas,,1,5,2,0.00334728033472803,1
-fl:ad_ln:york-1,Adam York,,1,5,2,0.00334728033472803,1
-fl:ak_ln:fukase-1,Akio Fukase,,1,5,2,0.00334728033472803,1
-fl:ak_ln:iwata-14,Akimichi Iwata,,1,5,2,0.00334728033472803,1
-fl:ak_ln:sugahara-6,Akio SUGAHARA,,1,5,2,0.00334728033472803,1
-fl:ak_ln:tanaka-18,Akihide Tanaka,,1,5,2,0.00334728033472803,1
-fl:ak_ln:yamamoto-8,Akihiro Yamamoto,,1,5,2,0.00334728033472803,1
-fl:al_ln:andriyanov-1,Alexey Andriyanov,,1,5,2,0.00334728033472803,1
-fl:al_ln:briggs-5,Alan E. Briggs,,1,5,2,0.00334728033472803,1
-fl:al_ln:dorner-1,Albert Hubert Dorner,,1,5,2,0.00334728033472803,1
-fl:al_ln:drimbarean-2,Alexandru Drimbarean,,1,5,2,0.00334728033472803,1
-fl:al_ln:embiricos-1,Alex Embiricos,,1,5,2,0.00334728033472803,1
-fl:al_ln:fomenko-1,Alexander Fomenko,,1,5,2,0.00334728033472803,1
-fl:al_ln:gerber-4,Alex Gerber,,1,5,2,0.00334728033472803,1
-fl:al_ln:habermeier-2,Alexander Habermeier,,1,5,2,0.00334728033472803,1
-fl:al_ln:horng-1,Alex Horng,,1,5,2,0.00334728033472803,1
-fl:al_ln:kupriyanov-1,Alexey Alexandrovich Kupriyanov,,1,5,2,0.00334728033472803,1
-fl:al_ln:lepplewienhues-1,Albrecht Lepple-Wienhues,,1,5,2,0.00334728033472803,1
-fl:al_ln:martinezfernandez-1,Almudena J. Martinez Fernandez,,1,5,2,0.00334728033472803,1
-fl:al_ln:murray-5,Allen R. Murray,,1,5,2,0.00334728033472803,1
-fl:al_ln:reznicek-1,Alexander Reznicek,,1,5,2,0.00334728033472803,1
-fl:al_ln:schenk-3,Alexander Schenk,,1,5,2,0.00334728033472803,1
-fl:al_ln:sorrentino-3,Alan Sorrentino,,1,5,2,0.00334728033472803,1
-fl:al_ln:turek-3,Alexander Turek,,1,5,2,0.00334728033472803,1
-fl:am_ln:khoja-1,Amjad-Ali Khoja,,1,5,2,0.00334728033472803,1
-fl:an_ln:alness-1,Andrew E. Alness,,1,5,2,0.00334728033472803,1
-fl:an_ln:atala-1,Anthony Atala,,1,5,2,0.00334728033472803,1
-fl:an_ln:bernalierdonadille-1,Annick Bernalier-Donadille,,1,5,2,0.00334728033472803,1
-fl:an_ln:bernstein-3,Andrey Bernstein,,1,5,2,0.00334728033472803,1
-fl:an_ln:berton-2,Anthony Berton,,1,5,2,0.00334728033472803,1
-fl:an_ln:bury-2,Andreas Bury,,1,5,2,0.00334728033472803,1
-fl:an_ln:ehrlich-2,Andreas Ehrlich,,1,5,2,0.00334728033472803,1
-fl:an_ln:fitzgibbon-1,Andrew William Fitzgibbon,,1,5,2,0.00334728033472803,1
-fl:an_ln:gasteiger-1,Anian Gasteiger,,1,5,2,0.00334728033472803,1
-fl:an_ln:gomez-8,Antonio Jesus Adsuar Gomez,,1,5,2,0.00334728033472803,1
-fl:an_ln:habermas-1,Andrew David Habermas,,1,5,2,0.00334728033472803,1
-fl:an_ln:haeger-1,Ansgar M. Haeger,,1,5,2,0.00334728033472803,1
+fl:ke_ln:miller-8,Kenneth James Miller,,2,1,1,0.0,1
+fl:ji_ln:wei-91,Jie Wei,,1,5,2,0.0033472803,1
+fl:st_ln:clemens-6,Stanford Clemens,,1,5,2,0.0033472803,1
+fl:er_ln:schenk-2,Eric Schenk,,1,5,2,0.0033472803,1
+fl:xi_ln:sun-31,Xinbo Sun,,1,5,2,0.0033472803,1
+fl:ko_ln:oshima-8,Koichi Oshima,,1,5,2,0.0033472803,1
+fl:je_ln:chevet-2,Jean-Claude Chevet,,1,5,2,0.0033472803,1
+fl:br_ln:fregonese-1,Brian J. Fregonese,,1,5,2,0.0033472803,1
+fl:tz_ln:lin-4,Tzer-Hso Lin,,1,5,2,0.0033472803,1
+fl:hu_ln:lim-34,Hun Lim,,1,5,2,0.0033472803,1
+fl:sh_ln:ono-58,Shinji Ono,,1,5,2,0.0033472803,1
+fl:as_ln:parikh-1,Ashish Parikh,,1,5,2,0.0033472803,1
+fl:do_ln:ward-12,Dominic John Ward,,1,5,2,0.0033472803,1
+fl:pe_ln:yen-3,Pei-Wen Yen,,1,5,2,0.0033472803,1
+fl:th_ln:plach-1,Thomas Plach,,1,5,2,0.0033472803,1
+fl:ha_ln:zhao-56,Haibo Zhao,,1,5,2,0.0033472803,1
+fl:zh_ln:zhang-282,Zhen Zhang,,1,5,2,0.0033472803,1
+fl:sc_ln:dylla-1,Scott J. Dylla,,1,5,2,0.0033472803,1
+fl:an_ln:bernalierdonadille-1,Annick Bernalier-Donadille,,1,5,2,0.0033472803,1
+fl:da_ln:shin-53,Dal Woo Shin,,1,5,2,0.0033472803,1
+fl:ma_ln:okada-23,Masahide Okada,,1,5,2,0.0033472803,1
+fl:ol_ln:groves-1,Oliver James Groves,,1,5,2,0.0033472803,1
+fl:jo_ln:valladares-2,Josefa Lombardero Valladares,,1,5,2,0.0033472803,1
+fl:ta_ln:hiwatari-1,Tatsuya Hiwatari,,1,5,2,0.0033472803,1
+fl:ge_ln:vanlaar-1,Gerardus Johannes Catharina Van Laar,,1,5,2,0.0033472803,1
+fl:yo_ln:watanabe-43,Yoshihiro Watanabe,,1,5,2,0.0033472803,1
+fl:ro_ln:wilson-49,Robert B. Wilson,,1,5,2,0.0033472803,1
+fl:ad_ln:abate-1,Adam R. Abate,,1,5,2,0.0033472803,1
+fl:da_ln:bilic-1,Davor Bilic,,1,5,2,0.0033472803,1
+fl:ma_ln:bisoffi-1,Marco Bisoffi,,1,5,2,0.0033472803,1
+fl:na_ln:ohyabu-1,Naoki Ohyabu,,1,5,2,0.0033472803,1
+fl:jo_ln:harris-74,Joel M. Harris,,1,5,2,0.0033472803,1
+fl:st_ln:piotrowicz-1,Stéphane PIOTROWICZ,,1,5,2,0.0033472803,1
+fl:fe_ln:fang-14,Feng Fang,,1,5,2,0.0033472803,1
+fl:ya_ln:liu-343,Yang Liu,,1,5,2,0.0033472803,1
+fl:ri_ln:clatot-1,Richard CLATOT,,1,5,2,0.0033472803,1
+fl:ch_ln:huang-1190,Chao Yuan Huang,,1,5,2,0.0033472803,1
+fl:la_ln:fragnettrapp-1,Laetitia Fragnet-Trapp,,1,5,2,0.0033472803,1
+fl:mi_ln:reillo-1,Michelle Reillo,,1,5,2,0.0033472803,1
+fl:je_ln:williams-70,Jeff Williams,,1,5,2,0.0033472803,1
+fl:wi_ln:harms-1,William Harms,,1,5,2,0.0033472803,1
+fl:ke_ln:hammerum-1,Keld Hammerum,,1,5,2,0.0033472803,1
+fl:ja_ln:kosecki-1,James Kosecki,,1,5,2,0.0033472803,1
+fl:by_ln:kim-263,Byung Gyu Kim,,1,5,2,0.0033472803,1
+fl:wa_ln:baratta-2,Walter Baratta,,1,5,2,0.0033472803,1
+fl:in_ln:poddar-1,Indrajit Poddar,,1,5,2,0.0033472803,1
+fl:so_ln:konno-2,Souichirou Konno,,1,5,2,0.0033472803,1
