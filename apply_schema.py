@@ -6,17 +6,11 @@ import re
 
 logging.basicConfig(level=logging.INFO)
 
-# Connect without database to create it
-server_url = 'mysql+pymysql://root:@localhost:3306/'
-server_engine = sqlalchemy.create_engine(server_url)
-
-with server_engine.connect() as conn:
-    logging.info("Creating fresh database 'patent_db'...")
-    conn.execute(text("CREATE DATABASE IF NOT EXISTS patent_db"))
-    conn.commit()
-
-# Connect to the new database
+# Connect to the database using the URL from config
 engine = sqlalchemy.create_engine(config.MYSQL_URL)
+
+logging.info(f"Connecting to database to apply schema...")
+
 with open('schema.sql', 'r') as f:
     sql_script = f.read()
 

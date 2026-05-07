@@ -6,6 +6,8 @@ load_dotenv()
 
 # MySQL configuration
 MYSQL_URL = os.getenv('MYSQL_URL')
+if MYSQL_URL and MYSQL_URL.startswith('mysql://'):
+    MYSQL_URL = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
 
 # --- LOCAL FILE PATHS ---
 # We point to the 'raw' folder in your project root

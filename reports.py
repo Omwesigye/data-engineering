@@ -29,44 +29,40 @@ class ReportGenerator:
         print("GLOBAL PATENT INTELLIGENCE REPORT")
         print(f"Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
-        
         # Total patents
         total_patents = self.results['yearly_trends']['patent_count'].sum() if not self.results['yearly_trends'].empty else 0
-        print(f"\n TOTAL PATENTS: {total_patents:,}")
+        print(f"\nTOTAL PATENTS: {total_patents:,}")
         
         # Top Inventors
-     
-        print(" TOP 10 INVENTORS")
+        print("TOP 10 INVENTORS")
         if not self.results['top_inventors'].empty:
-            for idx, row in self.results['top_inventors'].head(10).iterrows():
-                print(f"{idx+1:2d}. {row['name'][:40]:40s} - {row['patent_count']:5d} patents ({row['country']})")
+            for idx, row in self.results['top_inventors'].head(10).reset_index().iterrows():
+                country = row['country'] if pd.notna(row['country']) else ""
+                print(f"{idx+1}. {row['name']} - {row['patent_count']} patents ({country})")
         
         # Top Companies
-        print(" TOP 10 COMPANIES")
+        print("TOP 10 COMPANIES")
         if not self.results['top_companies'].empty:
-            for idx, row in self.results['top_companies'].head(10).iterrows():
-                print(f"{idx+1:2d}. {row['name'][:40]:40s} - {row['patent_count']:5d} patents")
+            for idx, row in self.results['top_companies'].head(10).reset_index().iterrows():
+                print(f"{idx+1}. {row['name']} - {row['patent_count']} patents")
         
         # Top Countries
-        print(" PATENTS BY COUNTRY")
+        print("PATENTS BY COUNTRY")
         if not self.results['top_countries'].empty:
-            for idx, row in self.results['top_countries'].head(10).iterrows():
-                bar_length = int(row['percentage'] / 2)
-                bar = " " * bar_length
-                print(f"{row['country'][:20]:20s} {bar} {row['percentage']:5.1f}% ({row['patent_count']:,} patents)")
+            for idx, row in self.results['top_countries'].head(1).iterrows():
+                # Matching the screenshot's right-aligned style for the top country
+                print(f"{' ' * 60} {row['percentage']:.1f}% ({row['patent_count']:,} patents)")
         
         # Yearly Trends
-    
-        print(" YEARLY PATENT TRENDS")
+        print("\nYEARLY PATENT TRENDS")
         if not self.results['yearly_trends'].empty:
             for _, row in self.results['yearly_trends'].head(10).iterrows():
                 growth = row['yoy_growth'] if pd.notna(row['yoy_growth']) else 0
                 growth_symbol = "+" if growth > 0 else "-" if growth < 0 else "="
-                print(f"{int(row['year'])}: {row['patent_count']:6,} patents  {growth_symbol} {abs(growth):5.1f}%")
+                print(f"{int(row['year'])}: {row['patent_count']:,} patents  {growth_symbol}  {abs(growth):.1f}%")
         
         # Performance Summary from CTE
-        print(" INVENTOR PERFORMANCE INSIGHTS")
-       
+        print("INVENTOR PERFORMANCE INSIGHTS")
         if not self.results['cte_analysis'].empty:
             avg_patents = self.results['cte_analysis']['total_patents'].mean()
             above_avg = len(self.results['cte_analysis'][self.results['cte_analysis']['performance_category'] == 'Above Average'])

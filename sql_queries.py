@@ -119,7 +119,7 @@ class PatentQueries:
             FROM inventor_stats
         )
         SELECT 
-            rank_val as rank,
+            rank_val as `rank`,
             name,
             country,
             total_patents,
