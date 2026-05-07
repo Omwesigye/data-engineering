@@ -64,4 +64,4 @@ To run the predefined SQL queries, analyze the data, and export the results to C
 
 python reports.py
 
-Navigate to the local URL provided in your terminal (usually `http://localhost:8501`) to view the dashboard in your browser.
+Navigate to the local URL provided in your terminal  to view the dashboard in your browser.
