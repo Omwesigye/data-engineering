@@ -4,10 +4,15 @@ from dotenv import load_dotenv
 # Load environment variables (SUPABASE_URL, etc.)
 load_dotenv()
 
-# MySQL configuration
-MYSQL_URL = os.getenv('MYSQL_URL')
-if MYSQL_URL and MYSQL_URL.startswith('mysql://'):
-    MYSQL_URL = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+# MySQL configuration - Try multiple common Railway env var names
+MYSQL_URL = os.getenv('MYSQL_URL') or os.getenv('DATABASE_URL') or os.getenv('MYSQL_PRIVATE_URL')
+
+if MYSQL_URL:
+    if MYSQL_URL.startswith('mysql://'):
+        MYSQL_URL = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+else:
+    # If we are here, no database URL was found at all
+    MYSQL_URL = None
 
 # --- LOCAL FILE PATHS ---
 # We point to the 'raw' folder in your project root

@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from sql_queries import PatentQueries
+import config
 import os
 
 # Page configuration
@@ -33,6 +34,13 @@ def fetch_all_data():
 st.title("🛡️ GLOBAL PATENT INTELLIGENCE")
 st.subheader("Live Analytics & Innovation Tracking")
 st.markdown("---")
+
+# Robust connection check
+if not config.MYSQL_URL:
+    st.error("❌ Database Connection String Missing!")
+    st.warning("Please set `MYSQL_URL` in your Railway 'Variables' tab.")
+    st.info("💡 Tip: In Railway, go to your Dashboard -> Streamlit Service -> Variables -> New Variable -> Reference Variable -> Select MySQL -> MYSQL_URL")
+    st.stop()
 
 try:
     with st.spinner("Connecting to Railway MySQL..."):
