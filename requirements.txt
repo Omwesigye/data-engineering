@@ -6,3 +6,4 @@ requests
 sqlalchemy
 tqdm
 streamlit
+plotly
