@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+# pyrefly: ignore [missing-import]
 import plotly.express as px
 from sql_queries import PatentQueries
 import config
 import os
+
 
 # Page configuration
 st.set_page_config(

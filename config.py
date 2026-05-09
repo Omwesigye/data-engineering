@@ -1,21 +1,36 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables (SUPABASE_URL, etc.)
+# Load local .env only for local development
 load_dotenv()
 
-# MySQL configuration - Try multiple common Railway env var names
-MYSQL_URL = os.getenv('MYSQL_URL') or os.getenv('DATABASE_URL') or os.getenv('MYSQL_PRIVATE_URL')
+# Try Railway variable names
+MYSQL_URL = (
+    os.getenv("MYSQL_URL")
+    or os.getenv("DATABASE_URL")
+    or os.getenv("MYSQL_PRIVATE_URL")
+)
+
+print("Raw MYSQL_URL:", MYSQL_URL)
 
 if MYSQL_URL:
-    if MYSQL_URL.startswith('mysql://'):
-        MYSQL_URL = MYSQL_URL.replace('mysql://', 'mysql+pymysql://', 1)
+    # Railway compatibility fix
+    if MYSQL_URL.startswith("mysql://"):
+        MYSQL_URL = MYSQL_URL.replace(
+            "mysql://",
+            "mysql+pymysql://",
+            1
+        )
+
+    print("Fixed MYSQL_URL:", MYSQL_URL)
+
 else:
-    # If we are here, no database URL was found at all
-    MYSQL_URL = None
+    raise Exception(
+        "No database URL found. "
+        "Check Railway environment variables."
+    )
 
 # --- LOCAL FILE PATHS ---
-# We point to the 'raw' folder in your project root
 RAW_DATA_DIR = "raw"
 OUTPUT_DIR = "output"
 
@@ -29,9 +44,9 @@ FILES = {
 
 # --- PIPELINE SETTINGS ---
 CHUNK_SIZE = 25000
-DEV_MODE_LIMIT = 4  # Set to None for full load, or a number for max chunks (4 = 100,000 rows)
+DEV_MODE_LIMIT = 4
 
-# Table names matching your Supabase schema
+# --- TABLE NAMES ---
 TABLE_PATENTS = "patents"
 TABLE_INVENTORS = "inventors"
 TABLE_COMPANIES = "companies"
