@@ -4,7 +4,7 @@ A full-stack data engineering project that extracts, transforms, and loads (ETL)
 
 Project Architecture
 
-1. ETL Pipeline: Processes large local `.tsv.zip` patent datasets (up to 1,000,000 rows) in chunks to ensure low memory usage, applying necessary transformations and loading the data into MySQL.
+1. ETL Pipeline: Processes large local `.tsv.zip` patent datasets (up to 100,000 rows) in chunks to ensure low memory usage, applying necessary transformations and loading the data into MySQL.
 2. Database: MySQL relational database holding normalized data (Patents, Inventors, Companies, and many-to-many relationships).
 3. Analytics: Pre-configured SQL queries yielding actionable intelligence on yearly trends and top performers.
 4. Dashboard: An interactive Streamlit frontend for data visualization.

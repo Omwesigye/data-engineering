@@ -24,7 +24,7 @@ FILES = {
 
 # --- PIPELINE SETTINGS ---
 CHUNK_SIZE = 25000
-DEV_MODE_LIMIT = 40  # Set to None for full load, or a number for max chunks (40 = 1,000,000 rows)
+DEV_MODE_LIMIT = 4  # Set to None for full load, or a number for max chunks (4 = 100,000 rows)
 
 # Table names matching your Supabase schema
 TABLE_PATENTS = "patents"
