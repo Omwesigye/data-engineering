@@ -15,7 +15,7 @@ CREATE TABLE patents (
     abstract TEXT,
     filing_date DATE,
     year INTEGER
-);
+) ENGINE=InnoDB;
 
 -- Inventors table
 CREATE TABLE inventors (

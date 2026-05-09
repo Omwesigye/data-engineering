@@ -115,9 +115,13 @@ class PatentDataPipeline:
                 conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
                 conn.commit()
 
-            # 2. Create a temporary table with the same schema
+            # 2. Create a TEMPORARY table with the same schema (uses less persistent disk space)
             temp_table = f"temp_{table_name}"
-            df.to_sql(temp_table, conn, if_exists='replace', index=False)
+            conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
+            conn.execute(text(f"CREATE TEMPORARY TABLE {temp_table} LIKE {table_name}"))
+            
+            # Load chunk into temporary table
+            df.to_sql(temp_table, conn, if_exists='append', index=False)
 
             # 3. Perform UPSERT (Insert on conflict do nothing)
             cols = ", ".join(df.columns)
@@ -150,7 +154,7 @@ class PatentDataPipeline:
                 """
 
             conn.execute(text(insert_sql))
-            conn.execute(text(f"DROP TABLE IF EXISTS {temp_table}"))
+            conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
             conn.commit()
 
     def run_pipeline(self):
