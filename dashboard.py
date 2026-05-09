@@ -7,7 +7,7 @@ import os
 # Page configuration
 st.set_page_config(
     page_title="Patent Intelligence Live",
-    page_icon="🎯",
+    page_icon="patent_favicon_1778322681737.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
