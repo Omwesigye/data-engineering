@@ -1,122 +1,137 @@
 {
   "metadata": {
-    "generated_at": "2026-05-10T13:43:28.518898",
-    "total_patents": 100000
+    "generated_at": "2026-05-10T15:08:55.074187",
+    "total_patents": 1000000
   },
   "top_inventors": [
     {
-      "name": "Kenneth James Miller",
-      "patents": 2,
+      "name": "Kangguo Cheng",
+      "patents": 41,
       "country": ""
     },
     {
-      "name": "Hakseong Kim",
-      "patents": 2,
+      "name": "Frederick E. Shelton, IV",
+      "patents": 32,
       "country": ""
     },
     {
-      "name": "Lei Wang",
-      "patents": 2,
+      "name": "Peter Gaal",
+      "patents": 32,
       "country": ""
     },
     {
-      "name": "Xiaogang Chen",
-      "patents": 2,
+      "name": "Shunpei Yamazaki",
+      "patents": 32,
       "country": ""
     },
     {
-      "name": "Abner D. Joseph",
-      "patents": 1,
+      "name": "Tao Luo",
+      "patents": 29,
       "country": ""
     },
     {
-      "name": "Abhijit Rajkumar Khande",
-      "patents": 1,
+      "name": "Kijun Kim",
+      "patents": 25,
       "country": ""
     },
     {
-      "name": "Robin Nastri",
-      "patents": 1,
+      "name": "Hanbyul Seo",
+      "patents": 24,
       "country": ""
     },
     {
-      "name": "Adi Dagan",
-      "patents": 1,
+      "name": "Hao Xu",
+      "patents": 24,
       "country": ""
     },
     {
-      "name": "Abhishek R. Appu",
-      "patents": 1,
+      "name": "Alexander Reznicek",
+      "patents": 22,
       "country": ""
     },
     {
-      "name": "Adrian Buckley",
-      "patents": 1,
+      "name": "Seungmin LEE",
+      "patents": 21,
       "country": ""
     }
   ],
   "top_companies": [
     {
       "name": "Samsung Electronics Co., Ltd.",
-      "patents": 30
+      "patents": 2995
     },
     {
       "name": "International Business Machines Corporation",
-      "patents": 25
+      "patents": 2961
     },
     {
-      "name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO., LTD.",
-      "patents": 9
+      "name": "Canon Kabushiki Kaisha",
+      "patents": 1081
     },
     {
-      "name": "QUALCOMM Incorporated",
-      "patents": 9
+      "name": "Intel Corporation",
+      "patents": 986
     },
     {
-      "name": "Toyota Jidosha Kabushiki Kaisha",
-      "patents": 9
+      "name": "Microsoft Technology Licensing, LLC",
+      "patents": 931
+    },
+    {
+      "name": "LG Electronics Inc.",
+      "patents": 897
     },
     {
       "name": "Apple Inc.",
-      "patents": 8
+      "patents": 823
     },
     {
-      "name": "Sony Corporation",
-      "patents": 7
+      "name": "Huawei Technologies Co., Ltd.",
+      "patents": 818
     },
     {
-      "name": "Google LLC",
-      "patents": 7
+      "name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO., LTD.",
+      "patents": 807
     },
     {
-      "name": "AT&T INTELLECTUAL PROPERTY I, L.P.",
-      "patents": 7
-    },
-    {
-      "name": "Mitsubishi Electric Corporation",
-      "patents": 7
+      "name": "Amazon Technologies, Inc.",
+      "patents": 801
     }
   ],
   "top_countries": [
     {
       "country": "",
-      "patents": 1192,
+      "patents": 114686,
       "share": 1.0
     }
   ],
   "yearly_trends": [
     {
+      "year": 2021,
+      "patents": 125852,
+      "growth": -64.42
+    },
+    {
+      "year": 2020,
+      "patents": 353701,
+      "growth": -0.62
+    },
+    {
+      "year": 2019,
+      "patents": 355923,
+      "growth": 116.34
+    },
+    {
       "year": 2018,
-      "patents": 100000,
+      "patents": 164524,
       "growth": null
     }
   ],
   "insights": {
-    "average_patents_per_inventor": 1.2,
+    "average_patents_per_inventor": 23.3,
     "most_prolific_inventor": {
-      "name": "Hakseong Kim",
-      "patents": 2,
-      "patents_per_year": 2.0
+      "name": "Kangguo Cheng",
+      "patents": 41,
+      "patents_per_year": 10.25
     }
   }
 }

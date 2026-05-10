@@ -1,11 +1,11 @@
 Patent DataPipeline
 
-A full-stack data engineering project that extracts, transforms, and loads (ETL) patent data into a MySQL database. It features robust analytics, automated reporting, and an interactive Streamlit dashboard to explore patent trends, top inventors, and leading innovative companies.
+A big data project that extracts, transforms, and loads (ETL) patent data into a PostgreSQL database. It features robust analytics, automated reporting, and an interactive Streamlit dashboard to explore patent trends, top inventors, and leading innovative companies.
 
 Project Architecture
 
-1. ETL Pipeline: Processes large local `.tsv.zip` patent datasets (up to 100,000 rows) in chunks to ensure low memory usage, applying necessary transformations and loading the data into MySQL.
-2. Database: MySQL relational database holding normalized data (Patents, Inventors, Companies, and many-to-many relationships).
+1. ETL Pipeline: Processes large local `.tsv.zip` patent datasets up to one million rows in chunks to ensure low memory usage, applying necessary transformations and loading the data into PostgreSQL.
+2. Database: PostgreSQL database holding normalized data (Patents, Inventors, Companies, and many-to-many relationships).
 3. Analytics: Pre-configured SQL queries yielding actionable intelligence on yearly trends and top performers.
 4. Dashboard: An interactive Streamlit frontend for data visualization.
 
@@ -26,27 +26,21 @@ cd DataPipeline
 
 It is highly recommended to use a virtual environment to manage dependencies.
 
-On Window
 python -m venv .venv
 .venv\Scripts\activate
-
-On macOS/Linux:
-python3 -m venv .venv
-source .venv/bin/activate
-
 3. Install Dependencies
 
 Install the required Python packages from `requirements.txt`:
 pip install -r requirements.txt
  4. Database Configuration
 
-1. Create a new MySQL database for this project (e.g., `patent_db`).
-2. Run the provided `schema.sql` script against your new database to create the necessary tables and indexes. You can do this via your preferred MySQL client (e.g., MySQL Workbench, DBeaver) or via the command line:
+1. Create a new PostgreSQL database for this project (e.g., `patent_db`).
+2. Run the provided `schema.sql` script against your new database to create the necessary tables and indexes. You can do this via your preferred PostgreSQL client (e.g., PostgreSQL Workbench, DBeaver) or via the command line:
 mysql -u your_username -p your_database_name < schema.sql
 
 5. Environment Variables
 
-Create a file named `.env` in the root of the project and add your MySQL connection string.
+Create a file named `.env` in the root of the project and add your PostgreSQL connection string.
 6. Add Raw Data
 
 The pipeline expects zipped TSV files from PatentsView. Create a folder named `raw` in the project root and place the following files inside:
@@ -64,4 +58,8 @@ To run the predefined SQL queries, analyze the data, and export the results to C
 
 python reports.py
 
-Navigate to the local URL provided in your terminal  to view the dashboard in your bowser.
+Navigate to the  URL provided in your terminal  to view the dashboard in your bowser.
+
+GitHub Repository: https://github.com/Omwesigye/data-engineering.git
+
+Dashboard url:  https://data-engineering-by23.onrender.com
