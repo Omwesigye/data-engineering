@@ -103,22 +103,31 @@ class PatentDataPipeline:
         return df
 
     def load_chunk_to_db(self, table_key: str, df: pd.DataFrame, is_first: bool):
-        """Helper to load chunks into MySQL with Conflict Handling."""
+        """Helper to load chunks into Database with Cross-DB Conflict Handling."""
         table_name = getattr(config, f"TABLE_{table_key.upper()}")
+        is_postgres = self.engine.name == 'postgresql'
         
         with self.engine.connect() as conn:
             # 1. Clear table if it's the first chunk
             if is_first:
                 logger.info(f"Truncating table {table_name}...")
-                conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
-                conn.execute(text(f"TRUNCATE TABLE {table_name};"))
-                conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
+                if is_postgres:
+                    # Postgres way to skip FK checks for truncation
+                    conn.execute(text(f"TRUNCATE TABLE {table_name} CASCADE;"))
+                else:
+                    conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
+                    conn.execute(text(f"TRUNCATE TABLE {table_name};"))
+                    conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
                 conn.commit()
 
-            # 2. Create a TEMPORARY table with the same schema (uses less persistent disk space)
+            # 2. Handle temporary table creation
             temp_table = f"temp_{table_name}"
-            conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
-            conn.execute(text(f"CREATE TEMPORARY TABLE {temp_table} LIKE {table_name}"))
+            if is_postgres:
+                conn.execute(text(f"DROP TABLE IF EXISTS {temp_table}"))
+                conn.execute(text(f"CREATE TEMP TABLE {temp_table} (LIKE {table_name})"))
+            else:
+                conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
+                conn.execute(text(f"CREATE TEMPORARY TABLE {temp_table} LIKE {table_name}"))
             
             # Load chunk into temporary table
             df.to_sql(temp_table, conn, if_exists='append', index=False)
@@ -126,35 +135,57 @@ class PatentDataPipeline:
             # 3. Perform UPSERT (Insert on conflict do nothing)
             cols = ", ".join(df.columns)
             
-            if table_key in ["patents", "inventors", "companies"]:
-                insert_sql = f"""
-                    INSERT IGNORE INTO {table_name} ({cols})
-                    SELECT {cols} FROM {temp_table}
-                """
-            elif table_key == "patent_inventors":
-                insert_sql = f"""
-                    INSERT IGNORE INTO {table_name} (patent_id, inventor_id)
-                    SELECT t.patent_id, t.inventor_id 
-                    FROM {temp_table} t
-                    INNER JOIN patents p ON t.patent_id = p.patent_id
-                    INNER JOIN inventors i ON t.inventor_id = i.inventor_id
-                """
-            elif table_key == "patent_companies":
-                insert_sql = f"""
-                    INSERT IGNORE INTO {table_name} (patent_id, company_id)
-                    SELECT t.patent_id, t.company_id 
-                    FROM {temp_table} t
-                    INNER JOIN patents p ON t.patent_id = p.patent_id
-                    INNER JOIN companies c ON t.company_id = c.company_id
-                """
+            if is_postgres:
+                # PostgreSQL Upsert logic
+                if table_key in ["patents", "inventors", "companies"]:
+                    conflict_target = f"{table_key[:-1]}_id" if table_key != "companies" else "company_id"
+                    insert_sql = f"""
+                        INSERT INTO {table_name} ({cols})
+                        SELECT {cols} FROM {temp_table}
+                        ON CONFLICT ({conflict_target}) DO NOTHING
+                    """
+                else:
+                    # Join tables
+                    targets = "(patent_id, inventor_id)" if table_key == "patent_inventors" else "(patent_id, company_id)"
+                    insert_sql = f"""
+                        INSERT INTO {table_name} {targets}
+                        SELECT {cols} FROM {temp_table}
+                        ON CONFLICT {targets} DO NOTHING
+                    """
             else:
-                insert_sql = f"""
-                    INSERT IGNORE INTO {table_name} ({cols})
-                    SELECT {cols} FROM {temp_table}
-                """
+                # MySQL Upsert logic
+                if table_key in ["patents", "inventors", "companies"]:
+                    insert_sql = f"""
+                        INSERT IGNORE INTO {table_name} ({cols})
+                        SELECT {cols} FROM {temp_table}
+                    """
+                elif table_key == "patent_inventors":
+                    insert_sql = f"""
+                        INSERT IGNORE INTO {table_name} (patent_id, inventor_id)
+                        SELECT t.patent_id, t.inventor_id 
+                        FROM {temp_table} t
+                        INNER JOIN patents p ON t.patent_id = p.patent_id
+                        INNER JOIN inventors i ON t.inventor_id = i.inventor_id
+                    """
+                elif table_key == "patent_companies":
+                    insert_sql = f"""
+                        INSERT IGNORE INTO {table_name} (patent_id, company_id)
+                        SELECT t.patent_id, t.company_id 
+                        FROM {temp_table} t
+                        INNER JOIN patents p ON t.patent_id = p.patent_id
+                        INNER JOIN companies c ON t.company_id = c.company_id
+                    """
+                else:
+                    insert_sql = f"""
+                        INSERT IGNORE INTO {table_name} ({cols})
+                        SELECT {cols} FROM {temp_table}
+                    """
 
             conn.execute(text(insert_sql))
-            conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
+            if is_postgres:
+                conn.execute(text(f"DROP TABLE IF EXISTS {temp_table}"))
+            else:
+                conn.execute(text(f"DROP TEMPORARY TABLE IF EXISTS {temp_table}"))
             conn.commit()
 
     def run_pipeline(self):
