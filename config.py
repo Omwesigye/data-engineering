@@ -6,28 +6,22 @@ load_dotenv()
 
 # Try Railway variable names
 MYSQL_URL = (
-    os.getenv("MYSQL_URL")
-    or os.getenv("DATABASE_URL")
-    or os.getenv("MYSQL_PRIVATE_URL")
+    (os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL"))
+    .strip()
+    if os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL")
+    else None
 )
 
 print("Raw MYSQL_URL:", MYSQL_URL)
 
 if MYSQL_URL:
-    # Railway compatibility fix
+    # Ensure driver prefix for SQLAlchemy
     if MYSQL_URL.startswith("mysql://"):
-        MYSQL_URL = MYSQL_URL.replace(
-            "mysql://",
-            "mysql+pymysql://",
-            1
-        )
-
+        MYSQL_URL = MYSQL_URL.replace("mysql://", "mysql+pymysql://", 1)
     print("Fixed MYSQL_URL:", MYSQL_URL)
-
 else:
-    raise Exception(
-        "No database URL found. "
-        "Check Railway environment variables."
+    raise EnvironmentError(
+        "Database URL not found. Please set MYSQL_URL (or DATABASE_URL) in your environment or .env file."
     )
 
 # --- LOCAL FILE PATHS ---

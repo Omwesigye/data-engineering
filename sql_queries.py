@@ -10,9 +10,14 @@ logger = logging.getLogger(__name__)
 
 class PatentQueries:
     def __init__(self):
-        """Initialize database connection."""
-        db_url = config.MYSQL_URL
-        self.engine = create_engine(db_url)
+        """Initialize database connection with robust URL handling and engine configuration."""
+        try:
+            db_url = config.MYSQL_URL
+            # Use future mode and enable connection health checks
+            self.engine = create_engine(db_url, future=True, pool_pre_ping=True)
+        except Exception as e:
+            logger.error(f"Failed to create SQLAlchemy engine: {e}")
+            raise
     
     def q1_top_inventors(self, limit: int = 10) -> pd.DataFrame:
         """Q1: Top inventors with most patents."""
