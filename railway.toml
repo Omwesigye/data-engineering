@@ -1,8 +1,0 @@
-[build]
-builder = "DOCKER"  # <--- Change NIXPACKS to DOCKER
-
-[deploy]
-# The Dockerfile handles the start command now, so you can simplify this
-healthCheckPath = "/"
-healthCheckTimeout = 100
-restartPolicyType = "ON_FAILURE"
