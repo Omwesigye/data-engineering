@@ -1,12 +1,8 @@
-SET FOREIGN_KEY_CHECKS = 0;
-
-DROP TABLE IF EXISTS patent_companies;
-DROP TABLE IF EXISTS patent_inventors;
-DROP TABLE IF EXISTS patents;
-DROP TABLE IF EXISTS inventors;
-DROP TABLE IF EXISTS companies;
-
-SET FOREIGN_KEY_CHECKS = 1;
+DROP TABLE IF EXISTS patent_companies CASCADE;
+DROP TABLE IF EXISTS patent_inventors CASCADE;
+DROP TABLE IF EXISTS patents CASCADE;
+DROP TABLE IF EXISTS inventors CASCADE;
+DROP TABLE IF EXISTS companies CASCADE;
 
 -- Patents table
 CREATE TABLE patents (
@@ -15,7 +11,7 @@ CREATE TABLE patents (
     abstract TEXT,
     filing_date DATE,
     year INTEGER
-) ENGINE=InnoDB;
+);
 
 -- Inventors table
 CREATE TABLE inventors (

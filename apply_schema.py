@@ -7,7 +7,7 @@ import re
 logging.basicConfig(level=logging.INFO)
 
 # Connect to the database using the URL from config
-engine = sqlalchemy.create_engine(config.MYSQL_URL)
+engine = sqlalchemy.create_engine(config.DATABASE_URL)
 
 logging.info(f"Connecting to database to apply schema...")
 

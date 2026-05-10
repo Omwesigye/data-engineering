@@ -85,8 +85,8 @@ class PatentQueries:
             p.patent_id,
             p.title,
             p.year,
-            GROUP_CONCAT(DISTINCT i.name SEPARATOR ', ') as inventors,
-            GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as assignees
+            STRING_AGG(DISTINCT i.name, ', ') as inventors,
+            STRING_AGG(DISTINCT c.name, ', ') as assignees
         FROM patents p
         LEFT JOIN patent_inventors pi ON p.patent_id = pi.patent_id
         LEFT JOIN inventors i ON pi.inventor_id = i.inventor_id

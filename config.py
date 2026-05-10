@@ -4,45 +4,66 @@ from dotenv import load_dotenv
 # Load local .env only for local development
 load_dotenv()
 
-# Build a robust MySQL URL for SQLAlchemy
-def normalize_mysql_url(raw_url: str) -> str:
-    """Convert a raw MySQL URL into a SQLAlchemy‑compatible URL.
-    Handles Railway's `mysql://` format, ensures the `pymysql` driver is used,
-    and URL‑encodes username/password to avoid parsing errors.
+# Build a robust DB URL for SQLAlchemy
+def normalize_db_url(raw_url: str) -> str:
+    """Convert a raw DB URL into a SQLAlchemy‑compatible URL.
+    Handles MySQL (Railway) and PostgreSQL (Render) formats.
     """
     from urllib.parse import urlparse, quote_plus, urlunparse
 
-    # Ensure we have a string
     raw_url = raw_url.strip()
 
-    # Replace driver prefix if needed
-    if raw_url.startswith("mysql://"):
-        raw_url = raw_url.replace("mysql://", "mysql+pymysql://", 1)
-    elif not raw_url.startswith("mysql+pymysql://"):
-        # If missing driver entirely, prepend it (still safe to parse later)
-        raw_url = f"mysql+pymysql://{raw_url.split('://')[-1]}"
+    # Handle PostgreSQL (Render uses postgres://, SQLAlchemy requires postgresql://)
+    if raw_url.startswith("postgres://") or raw_url.startswith("postgresql://"):
+        if raw_url.startswith("postgres://"):
+            raw_url = raw_url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif not raw_url.startswith("postgresql+psycopg2://"):
+            raw_url = raw_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        
+        # Safe Parse and Encode
+        parsed = urlparse(raw_url)
+        username = quote_plus(parsed.username) if parsed.username else ""
+        password = quote_plus(parsed.password) if parsed.password else ""
+        netloc = f"{username}:{password}@{parsed.hostname}" if username or password else parsed.hostname
+        if parsed.port:
+            netloc += f":{parsed.port}"
+        return urlunparse(("postgresql+psycopg2", netloc, parsed.path, "", "", ""))
 
-    # Parse the URL
-    parsed = urlparse(raw_url)
-    username = quote_plus(parsed.username) if parsed.username else ""
-    password = quote_plus(parsed.password) if parsed.password else ""
-    netloc = f"{username}:{password}@{parsed.hostname}" if username or password else parsed.hostname
-    if parsed.port:
-        netloc += f":{parsed.port}"
-    # Reconstruct URL with the possibly encoded credentials
-    return urlunparse(("mysql+pymysql", netloc, parsed.path, "", "", ""))
+    # Handle MySQL
+    if raw_url.startswith("mysql://") or raw_url.startswith("mysql+pymysql://"):
+        if raw_url.startswith("mysql://"):
+            raw_url = raw_url.replace("mysql://", "mysql+pymysql://", 1)
+        
+        parsed = urlparse(raw_url)
+        username = quote_plus(parsed.username) if parsed.username else ""
+        password = quote_plus(parsed.password) if parsed.password else ""
+        netloc = f"{username}:{password}@{parsed.hostname}" if username or password else parsed.hostname
+        if parsed.port:
+            netloc += f":{parsed.port}"
+        return urlunparse(("mysql+pymysql", netloc, parsed.path, "", "", ""))
 
-# Load env vars (Railway may expose MYSQL_URL or DATABASE_URL)
-raw_mysql = os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL")
-if not raw_mysql:
-    raise EnvironmentError(
-        "Database URL not found. Please set MYSQL_URL (or DATABASE_URL) in your environment or .env file."
-    )
+    return raw_url
 
-MYSQL_URL = normalize_mysql_url(raw_mysql)
+# Load env vars
+raw_db_url = (
+    os.getenv("DATABASE_URL") 
+    or os.getenv("MYSQL_URL") 
+    or os.getenv("DATABASE_PUBLIC_URL")
+)
 
-print("Raw MYSQL_URL:", raw_mysql)
-print("Normalized MYSQL_URL:", MYSQL_URL)
+if not raw_db_url:
+    # Fallback for local .env if needed
+    raw_db_url = os.getenv("MYSQL_URL") 
+
+if not raw_db_url:
+    raise EnvironmentError("No database URL found in environment variables.")
+
+DATABASE_URL = normalize_db_url(raw_db_url)
+# For backwards compatibility with existing scripts
+MYSQL_URL = DATABASE_URL
+
+print("Raw DB URL:", raw_db_url)
+print("Normalized DB URL:", DATABASE_URL)
 
 # --- LOCAL FILE PATHS ---
 RAW_DATA_DIR = "raw"

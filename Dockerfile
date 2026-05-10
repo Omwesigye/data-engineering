@@ -17,13 +17,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set environment variables for Streamlit
-ENV PORT=8080
-ENV STREAMLIT_SERVER_PORT=8080
-ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
+ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-# Expose the port
-EXPOSE 8080
+# Expose port (Render ignores this but it's good practice)
+EXPOSE 10000
 
-# Start the application
-CMD ["sh", "-c", "streamlit run dashboard.py --server.port $PORT --server.address 0.0.0.0"]
+# Start the application using the dynamic PORT variable provided by Render
+CMD ["sh", "-c", "streamlit run dashboard.py --server.port ${PORT:-10000} --server.address 0.0.0.0"]
