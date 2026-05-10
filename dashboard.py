@@ -108,15 +108,31 @@ try:
 
     with row2_col1:
         st.write("#### 🌍 Global Distribution (Top 10 Countries)")
-        fig_geo = px.bar(
+        fig_geo = px.line(
             data["countries"].head(10), 
             x="country", 
             y="patent_count",
-            color="patent_count",
-            color_continuous_scale="Icefire",
-            labels={"patent_count": "Patents", "country": "Country"}
+            markers=True,
+            line_shape="spline",
+            labels={"patent_count": "Patents", "country": "Country"},
+            color_discrete_sequence=["#FF4B4B"]
         )
-        fig_geo.update_layout(height=400, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
+        fig_geo.update_traces(
+            line=dict(width=4),
+            marker=dict(size=10, symbol='diamond', line=dict(width=2, color='DarkSlateGrey')),
+            fill='tozeroy', # Adding an area fill for a richer look
+            fillcolor='rgba(255, 75, 75, 0.2)'
+        )
+        fig_geo.update_layout(
+            height=400, 
+            showlegend=False, 
+            margin=dict(l=0, r=0, t=30, b=0),
+            xaxis={'categoryorder':'total descending'},
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            xaxis_title="",
+            yaxis_title="Total Patents"
+        )
         st.plotly_chart(fig_geo, use_container_width=True)
 
     with row2_col2:
