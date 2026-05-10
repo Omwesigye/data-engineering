@@ -81,19 +81,26 @@ try:
             color_continuous_scale="Viridis",
             labels={"patent_count": "Patents", "name": "Company"}
         )
-        fig_cos.update_layout(yaxis={'categoryorder':'total ascending'}, showlegend=False, height=400)
+        fig_cos.update_layout(
+            yaxis={'categoryorder':'total ascending'}, 
+            showlegend=False, 
+            height=400,
+            margin=dict(l=0, r=0, t=30, b=0)
+        )
         st.plotly_chart(fig_cos, use_container_width=True)
 
     with row1_col2:
-        st.write("#### 📅 Filing Trends Over Time")
-        fig_trends = px.area(
+        st.write("#### 📈 Filing Trends Over Time")
+        fig_trends = px.line(
             data["trends"].sort_values("year"), 
             x="year", 
             y="patent_count",
+            markers=True,
+            line_shape="spline",
             labels={"patent_count": "Patents", "year": "Year"},
             color_discrete_sequence=["#00CC96"]
         )
-        fig_trends.update_layout(height=400)
+        fig_trends.update_layout(height=400, margin=dict(l=0, r=0, t=30, b=0))
         st.plotly_chart(fig_trends, use_container_width=True)
 
     # --- Visualizations Row 2 ---
@@ -101,13 +108,15 @@ try:
 
     with row2_col1:
         st.write("#### 🌍 Global Distribution (Top 10 Countries)")
-        fig_geo = px.pie(
+        fig_geo = px.bar(
             data["countries"].head(10), 
-            values="patent_count", 
-            names="country",
-            hole=0.4,
-            color_discrete_sequence=px.colors.sequential.RdBu
+            x="country", 
+            y="patent_count",
+            color="patent_count",
+            color_continuous_scale="Icefire",
+            labels={"patent_count": "Patents", "country": "Country"}
         )
+        fig_geo.update_layout(height=400, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
         st.plotly_chart(fig_geo, use_container_width=True)
 
     with row2_col2:
@@ -117,8 +126,10 @@ try:
             x="name", 
             y="patent_count",
             color="patent_count",
+            color_continuous_scale="Plasma",
             labels={"patent_count": "Patents", "name": "Inventor"}
         )
+        fig_inv.update_layout(height=400, showlegend=False, margin=dict(l=0, r=0, t=30, b=0))
         st.plotly_chart(fig_inv, use_container_width=True)
 
     # --- Data Explorer ---
