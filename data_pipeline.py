@@ -145,13 +145,25 @@ class PatentDataPipeline:
                         ON CONFLICT ({conflict_target}) DO NOTHING
                     """
                 else:
-                    # Join tables
-                    targets = "(patent_id, inventor_id)" if table_key == "patent_inventors" else "(patent_id, company_id)"
-                    insert_sql = f"""
-                        INSERT INTO {table_name} {targets}
-                        SELECT {cols} FROM {temp_table}
-                        ON CONFLICT {targets} DO NOTHING
-                    """
+                    # Relationship tables (many-to-many)
+                    if table_key == "patent_inventors":
+                        insert_sql = f"""
+                            INSERT INTO {table_name} (patent_id, inventor_id)
+                            SELECT t.patent_id, t.inventor_id 
+                            FROM {temp_table} t
+                            INNER JOIN patents p ON t.patent_id = p.patent_id
+                            INNER JOIN inventors i ON t.inventor_id = i.inventor_id
+                            ON CONFLICT (patent_id, inventor_id) DO NOTHING
+                        """
+                    else: # patent_companies
+                        insert_sql = f"""
+                            INSERT INTO {table_name} (patent_id, company_id)
+                            SELECT t.patent_id, t.company_id 
+                            FROM {temp_table} t
+                            INNER JOIN patents p ON t.patent_id = p.patent_id
+                            INNER JOIN companies c ON t.company_id = c.company_id
+                            ON CONFLICT (patent_id, company_id) DO NOTHING
+                        """
             else:
                 # MySQL Upsert logic
                 if table_key in ["patents", "inventors", "companies"]:

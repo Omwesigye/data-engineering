@@ -124,7 +124,7 @@ class PatentQueries:
             FROM inventor_stats
         )
         SELECT 
-            rank_val as `rank`,
+            rank_val as "rank",
             name,
             country,
             total_patents,
@@ -148,10 +148,10 @@ class PatentQueries:
             i.name,
             i.country,
             COUNT(DISTINCT pi.patent_id) as patent_count,
-            RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `rank`,
-            DENSE_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `dense_rank`,
-            PERCENT_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `percent_rank`,
-            NTILE(4) OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as `quartile`
+            RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as "rank",
+            DENSE_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as "dense_rank",
+            PERCENT_RANK() OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as "percent_rank",
+            NTILE(4) OVER (ORDER BY COUNT(DISTINCT pi.patent_id) DESC) as "quartile"
         FROM inventors i
         JOIN patent_inventors pi ON i.inventor_id = pi.inventor_id
         GROUP BY i.inventor_id, i.name, i.country

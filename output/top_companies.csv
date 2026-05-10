@@ -1,11 +1,11 @@
 company_id,name,patent_count
 533e0469-baac-46b7-9576-669db08092eb,"Samsung Electronics Co., Ltd.",30
 29b8f534-149e-443c-b76b-3c4a222da89c,International Business Machines Corporation,25
-f03635c8-6b6c-4f2b-bb6c-b52678f56aae,QUALCOMM Incorporated,9
 88c962da-6df3-4f86-85ba-14c24c3cb600,"TAIWAN SEMICONDUCTOR MANUFACTURING CO., LTD.",9
+f03635c8-6b6c-4f2b-bb6c-b52678f56aae,QUALCOMM Incorporated,9
 87bbd77e-54e0-4d95-9c1b-7843963c09eb,Toyota Jidosha Kabushiki Kaisha,9
 38cff6e0-fc52-4faf-9fa9-b72912600dee,Apple Inc.,8
-74c11be2-20ec-49fe-ac26-d839d375bd32,Mitsubishi Electric Corporation,7
-3da4c986-211f-4499-8d7a-d0c794021c02,"AT&T INTELLECTUAL PROPERTY I, L.P.",7
+55bc7465-2823-418d-9835-41d555c610a6,Sony Corporation,7
 048b2efe-1ff2-4857-9bbc-18422f0f1910,Google LLC,7
-dfdf1f1a-8f22-41dc-a7f0-855bde20ca67,Canon Kabushiki Kaisha,7
+3da4c986-211f-4499-8d7a-d0c794021c02,"AT&T INTELLECTUAL PROPERTY I, L.P.",7
+74c11be2-20ec-49fe-ac26-d839d375bd32,Mitsubishi Electric Corporation,7
