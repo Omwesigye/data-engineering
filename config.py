@@ -4,25 +4,45 @@ from dotenv import load_dotenv
 # Load local .env only for local development
 load_dotenv()
 
-# Try Railway variable names
-MYSQL_URL = (
-    (os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL"))
-    .strip()
-    if os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL")
-    else None
-)
+# Build a robust MySQL URL for SQLAlchemy
+def normalize_mysql_url(raw_url: str) -> str:
+    """Convert a raw MySQL URL into a SQLAlchemy‑compatible URL.
+    Handles Railway's `mysql://` format, ensures the `pymysql` driver is used,
+    and URL‑encodes username/password to avoid parsing errors.
+    """
+    from urllib.parse import urlparse, quote_plus, urlunparse
 
-print("Raw MYSQL_URL:", MYSQL_URL)
+    # Ensure we have a string
+    raw_url = raw_url.strip()
 
-if MYSQL_URL:
-    # Ensure driver prefix for SQLAlchemy
-    if MYSQL_URL.startswith("mysql://"):
-        MYSQL_URL = MYSQL_URL.replace("mysql://", "mysql+pymysql://", 1)
-    print("Fixed MYSQL_URL:", MYSQL_URL)
-else:
+    # Replace driver prefix if needed
+    if raw_url.startswith("mysql://"):
+        raw_url = raw_url.replace("mysql://", "mysql+pymysql://", 1)
+    elif not raw_url.startswith("mysql+pymysql://"):
+        # If missing driver entirely, prepend it (still safe to parse later)
+        raw_url = f"mysql+pymysql://{raw_url.split('://')[-1]}"
+
+    # Parse the URL
+    parsed = urlparse(raw_url)
+    username = quote_plus(parsed.username) if parsed.username else ""
+    password = quote_plus(parsed.password) if parsed.password else ""
+    netloc = f"{username}:{password}@{parsed.hostname}" if username or password else parsed.hostname
+    if parsed.port:
+        netloc += f":{parsed.port}"
+    # Reconstruct URL with the possibly encoded credentials
+    return urlunparse(("mysql+pymysql", netloc, parsed.path, "", "", ""))
+
+# Load env vars (Railway may expose MYSQL_URL or DATABASE_URL)
+raw_mysql = os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL") or os.getenv("MYSQL_PRIVATE_URL")
+if not raw_mysql:
     raise EnvironmentError(
         "Database URL not found. Please set MYSQL_URL (or DATABASE_URL) in your environment or .env file."
     )
+
+MYSQL_URL = normalize_mysql_url(raw_mysql)
+
+print("Raw MYSQL_URL:", raw_mysql)
+print("Normalized MYSQL_URL:", MYSQL_URL)
 
 # --- LOCAL FILE PATHS ---
 RAW_DATA_DIR = "raw"
